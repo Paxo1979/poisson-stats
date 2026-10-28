@@ -1,0 +1,32 @@
+name: Aggiorna Dati Calcio
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 4 * * 1'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Carica codice repository
+        uses: actions/checkout@v3
+
+      - name: Configura Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Installa dipendenze
+        run: pip install requests beautifulsoup4
+
+      - name: Esegui Scraper
+        run: python scraper.py
+
+      - name: Salva e aggiorna i dati su GitHub
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/stats.json
+          git commit -m "Aggiornamento automatico dati" || exit 0
+          git push
